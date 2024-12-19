@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import connectToDatabase from "./database/db";
 import cors from "cors";
+import UserRouter from "./user/routes/route";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,7 +18,7 @@ app.use((req, _, next) => {
 app.use(cors());
 
 // routes
-
+app.use("/api/user", UserRouter);
 // error handling
 
 // connect to database

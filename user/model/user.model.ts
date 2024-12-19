@@ -2,6 +2,20 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
 const status = ['active', 'inactive', 'blocked'];
+const role = ['user', 'admin'];
+
+export interface UserDocument {
+    _id: string;
+    name: string;
+    email: string;
+    phone: number;
+    password: string;
+    role: string;
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    __v: number;
+}
 
 const UserSchema = new Schema({
     name: {
@@ -22,7 +36,9 @@ const UserSchema = new Schema({
     },
     role: {
         type: String,
+        enum: role,
         required: true,
+        default: 'user',
     },
     status: {
         type: String,
