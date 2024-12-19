@@ -23,11 +23,13 @@ app.use(cors());
 import UserRouter from "./user/routes/route";
 import productRouter from "./products/routes/productRoute";
 import categoryRoute from "./products/routes/categoryRoute";
+import reviewRoute from "./products/routes/reviewRoute";
 
 // routes
 app.use("/api/user", UserRouter);
 app.use("/api/product", productRouter);
 app.use("/api/category", categoryRoute);
+app.use("/api/review", reviewRoute);
 // error handling
 
 // connect to database
