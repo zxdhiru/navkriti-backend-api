@@ -25,13 +25,14 @@ const productSchema = new Schema(
             type: Number,
             required: true
         },
-        images: {
-            type: [String],
-            required: true,
-        },
+        // images: {
+        //     type: [String],
+        //     required: true,
+        // },
         category: {
-            type: Schema.Types.ObjectId,
-            ref: 'Category',
+            // type: Schema.Types.ObjectId,
+            // ref: 'Category',
+            type: String,
             required: true,
         },
         tags: {
@@ -54,15 +55,6 @@ const productSchema = new Schema(
     { timestamps: true }
 );
 
-// Pre-save hook to generate slug if not provided
-productSchema.pre('save', function (next) {
-    if (!this.slug) {
-        this.slug = this.name.toLowerCase().split(" ").join("-"); // Generate slug from name
-    }
-    next();
-});
-
-// Indexing for fast queries
 productSchema.index({ slug: 1, category: 1, isActive: 1 });
 
 // Model creation
