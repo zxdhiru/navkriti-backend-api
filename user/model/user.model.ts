@@ -8,6 +8,7 @@ const role = ['user', 'admin'];
 interface UserDocument extends Document {
     email: string;
     refreshToken?: string;
+    comparePassword(candidatePassword: string): Promise<boolean>
     generateAccessToken: () => string;
     generateRefreshToken: () => string;
 }
@@ -57,24 +58,11 @@ UserSchema.pre('save', function(next) {
 UserSchema.methods.comparePassword = async function(plaintext : string) {
     return bcrypt.compareSync(plaintext, this.password);
 }
-
-// Access token generation method
-UserSchema.methods.generateAccessToken = function (): string {
-    return jwt.sign(
-        { _id: this._id, email: this.email },
-        `${process.env.ACCESS_TOKEN_SECRET}`,
-        { expiresIn: `${process.env.ACCESS_TOKEN_EXPIRY}` }
-    );
-};
-
-// Refresh token generation method
-UserSchema.methods.generateRefreshToken = function (): string {
-    return jwt.sign(
-        { _id: this._id },
-        `${process.env.REFRESH_TOKEN_SECRET}`,
-        { expiresIn: `${process.env.REFRESH_TOKEN_EXPIRY}` }
-    );
-};
-
+UserSchema.methods.generateAccessToken = function() {
+    return jwt.sign({ id: this._id }, `${process.env.ACCESS_TOKEN_SECRET}`, { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN });
+}
+UserSchema.methods.generateRefreshToken = function() {
+    return jwt.sign({ id: this._id }, `${process.env.REFRESH_TOKEN_SECRET}`, { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN });
+}
 const User = mongoose.model<UserDocument>('User', UserSchema);
 export { User, UserDocument };
