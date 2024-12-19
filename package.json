@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "Ecommerce backend",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "dev": "nodemon --exec ts-node server.ts"
+    "dev": "nodemon server.ts"
   },
   "keywords": [
     "ecommerce",
