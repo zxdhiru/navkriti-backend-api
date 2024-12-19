@@ -1,14 +1,34 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import connectToDatabase from './database/db';
-
+import express from "express";
+import dotenv from "dotenv";
 dotenv.config();
+import connectToDatabase from "./database/db";
+import cors from "cors";
+
 const app = express();
 const port = process.env.PORT || 3000;
 
+// middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use((req, _, next) => {
+    console.log(`${req.method} ${req.path} ${req.body}`);
+    next();
+});
+app.use(cors());
+
+// routes
+
+// error handling
+
+// connect to database
+
 connectToDatabase(`${process.env.MONGO_URI}/${process.env.MONGO_DB}`)
-.then(() => {
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    })
+    .catch((error: any) => {
+        console.error(`Error: ${error.message}`);
+        process.exit(1);
     });
-})
