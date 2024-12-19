@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 dotenv.config();
 import connectToDatabase from "./database/db";
 import cors from "cors";
-import UserRouter from "./user/routes/route";
 import cookieParser from "cookie-parser";
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,8 +19,15 @@ app.use((req, _, next) => {
 });
 app.use(cors());
 
+// router imports
+import UserRouter from "./user/routes/route";
+import productRouter from "./products/routes/productRoute";
+import categoryRoute from "./products/routes/categoryRoute";
+
 // routes
 app.use("/api/user", UserRouter);
+app.use("/api/product", productRouter);
+app.use("/api/category", categoryRoute);
 // error handling
 
 // connect to database
