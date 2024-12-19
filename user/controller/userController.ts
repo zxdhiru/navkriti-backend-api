@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
-import { User, UserDocument } from "../model/user.model";
+import { User } from "../model/user.model";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
+
+
 
 
 const handleUserSignup = asyncHandler(async (req: Request, res: Response) => {
