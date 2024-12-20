@@ -20,7 +20,7 @@ app.use((req, _, next) => {
 app.use(cors());
 
 // router imports
-import UserRouter from "./user/routes/route";
+import UserRouter from "./user/routes/user.route";
 import productRouter from "./products/routes/productRoute";
 import categoryRoute from "./products/routes/categoryRoute";
 import reviewRoute from "./products/routes/reviewRoute";
