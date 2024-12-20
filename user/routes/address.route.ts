@@ -5,3 +5,5 @@ import { setRequestUser } from '../../middlewares/setRequest';
 const addressRouter = Router();
 
 addressRouter.post('/', setRequestUser, handleAddAddress);
+
+export default addressRouter;
