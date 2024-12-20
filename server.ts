@@ -27,6 +27,9 @@ import reviewRoute from "./products/routes/review.route";
 import cartRoute from "./user/routes/cart.route";
 import couponRoute from "./products/routes/coupon.route";
 import orderRoute from "./products/routes/order.route";
+import wishlistRoute from "./user/routes/wishlist.route";
+import addressRouter from "./user/routes/address.route";
+
 // routes
 app.use("/api/user", UserRouter);
 app.use("/api/product", productRouter);
@@ -35,6 +38,8 @@ app.use("/api/review", reviewRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/coupon", couponRoute);
 app.use("api/order", orderRoute)
+app.use("/api/wishlist", wishlistRoute);
+app.use("/api/address", addressRouter);
 // error handling
 
 // connect to database
