@@ -26,7 +26,7 @@ import categoryRoute from "./products/routes/categoryRoute";
 import reviewRoute from "./products/routes/reviewRoute";
 import cartRoute from "./user/routes/cart.route";
 import couponRoute from "./products/routes/coupon.route";
-
+import orderRoute from "./products/routes/order.route";
 // routes
 app.use("/api/user", UserRouter);
 app.use("/api/product", productRouter);
@@ -34,6 +34,7 @@ app.use("/api/category", categoryRoute);
 app.use("/api/review", reviewRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/coupon", couponRoute);
+app.use("api/order", orderRoute)
 // error handling
 
 // connect to database
