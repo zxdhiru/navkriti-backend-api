@@ -21,9 +21,9 @@ app.use(cors());
 
 // router imports
 import UserRouter from "./user/routes/user.route";
-import productRouter from "./products/routes/productRoute";
+import productRouter from "./products/routes/product.route";
 import categoryRoute from "./products/routes/categoryRoute";
-import reviewRoute from "./products/routes/reviewRoute";
+import reviewRoute from "./products/routes/review.route";
 import cartRoute from "./user/routes/cart.route";
 import couponRoute from "./products/routes/coupon.route";
 import orderRoute from "./products/routes/order.route";
