@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {handleUserLogin, handleUserLogout, handleUserSignup} from "../controller/userController";
+import {handleUserLogin, handleUserLogout, handleUserSignup} from "../controller/user.controller";
 import { setRequestUser } from "../../middlewares/setRequest";
 
 const UserRouter = Router();
