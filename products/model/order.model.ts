@@ -58,3 +58,5 @@ const orderSchema = new Schema({
         ref: 'Coupon'
     }
 }, {timestamps: true});
+
+export const Order = model("Order", orderSchema)
