@@ -70,8 +70,6 @@ export const handleUserLogin = asyncHandler(async (req: Request, res: Response) 
     )
 })
 
-
-
 export const handleUserLogout = asyncHandler(async (req: UserRequest, res: Response) => {
     // Clear refresh token from the database
     console.log(req.user);
@@ -93,4 +91,27 @@ export const handleUserLogout = asyncHandler(async (req: UserRequest, res: Respo
     .clearCookie("refreshToken", cookieOptions)
     .json(new ApiResponse(200, {}, "User logged Out"))
 
+})
+
+export const handleGetAllUsers = asyncHandler(async (req: Request, res: Response) => {
+    const users = await User.find();
+    res.status(200).json(new ApiResponse(200, users, "All users fetched successfully"));
+})
+
+export const handleGetUserProfile = asyncHandler(async (req: Request & UserRequest, res: Response) => {
+    const userId = req.user._id;
+    const user = await User.findById(userId).select("-password -refreshToken -role -status");
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    res.status(200).json(new ApiResponse(200, user, "User fetched successfully"));
+})
+
+export const handleGetSingleUser = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const user = await User.findById(userId).select("-password -refreshToken");
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    res.status(200).json(new ApiResponse(200, user, "User fetched successfully"));
 })
