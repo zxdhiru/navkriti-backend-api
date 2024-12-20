@@ -7,6 +7,8 @@ import { Cart } from "../model/cart.model";
 
 export const handleAddToCart = asyncHandler(async (req: Request & UserRequest, res: Response) => {
     const user = req.user;
+    console.log(user);
+    
     const { productId, quantity = 1 } = req.body; 
 
     // Check if the product exists
