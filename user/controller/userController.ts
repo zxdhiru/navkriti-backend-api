@@ -3,7 +3,7 @@ import { User } from "../model/user.model";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
-import { cookieOptions } from "../../utils/constants";
+import { cookieOptions, UserRequest } from "../../utils/constants";
 
 export const handleUserSignup = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, phone, password } = req.body;
@@ -70,10 +70,7 @@ export const handleUserLogin = asyncHandler(async (req: Request, res: Response) 
     )
 })
 
-// Type for user data in the request
-interface UserRequest extends Request {
-    user: { _id: string }; // Define the expected shape of req.user
-}
+
 
 export const handleUserLogout = asyncHandler(async (req: UserRequest, res: Response) => {
     // Clear refresh token from the database
