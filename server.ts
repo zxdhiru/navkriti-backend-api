@@ -1,3 +1,5 @@
+import cluster from "cluster";
+import os from "os";
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
@@ -5,6 +7,33 @@ import connectToDatabase from "./database/db";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+
+
+// router imports
+import UserRouter from "./user/routes/user.route";
+import productRouter from "./products/routes/product.route";
+import categoryRoute from "./products/routes/categoryRoute";
+import reviewRoute from "./products/routes/review.route";
+import cartRoute from "./user/routes/cart.route";
+import couponRoute from "./products/routes/coupon.route";
+import orderRoute from "./products/routes/order.route";
+import wishlistRoute from "./user/routes/wishlist.route";
+import addressRouter from "./user/routes/address.route";
+
+const numCPUs = os.cpus().length;
+
+if (cluster.isPrimary) {
+    console.log(`Primary ${process.pid} is running`);
+
+    // Fork workers.
+    for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
+    }
+
+    cluster.on("exit", (worker, code, signal) => {
+        console.log(`worker ${worker.process.pid} died`);
+    });
+} else {
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,16 +48,6 @@ app.use((req, _, next) => {
 });
 app.use(cors());
 
-// router imports
-import UserRouter from "./user/routes/user.route";
-import productRouter from "./products/routes/product.route";
-import categoryRoute from "./products/routes/categoryRoute";
-import reviewRoute from "./products/routes/review.route";
-import cartRoute from "./user/routes/cart.route";
-import couponRoute from "./products/routes/coupon.route";
-import orderRoute from "./products/routes/order.route";
-import wishlistRoute from "./user/routes/wishlist.route";
-import addressRouter from "./user/routes/address.route";
 
 // routes
 app.use("/api/user", UserRouter);
@@ -54,3 +73,4 @@ connectToDatabase(`${process.env.MONGO_URI}/${process.env.MONGO_DB}`)
         console.error(`Error: ${error.message}`);
         process.exit(1);
     });
+}
