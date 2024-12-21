@@ -13,7 +13,7 @@ export const setRequestUser = async (req: Request & any, _: Response, next: Next
     const { accessToken } = req.cookies;
     
     if (!accessToken) {
-        return next(new ApiError(401, "Unauthorized"));
+        return next(new ApiError(401, "Unauthorized User"));
     }
 
     try {
@@ -32,7 +32,7 @@ export const setRequestUser = async (req: Request & any, _: Response, next: Next
 
 export const checkForAdmin = async (req: Request & any, _: Response, next: NextFunction) => {
     if (!req.user || req.user.role !== "admin") {
-        return next(new ApiError(403, "Forbidden"));
+        return next(new ApiError(403, "Access denied"));
     }
     next();
 }
