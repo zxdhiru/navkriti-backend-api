@@ -29,3 +29,10 @@ export const setRequestUser = async (req: Request & any, _: Response, next: Next
         return next(new ApiError(401, "Invalid or expired token"));
     }
 };
+
+export const checkForAdmin = async (req: Request & any, _: Response, next: NextFunction) => {
+    if (!req.user || req.user.role !== "admin") {
+        return next(new ApiError(403, "Forbidden"));
+    }
+    next();
+}
