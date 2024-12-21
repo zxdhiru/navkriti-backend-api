@@ -4,6 +4,7 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
 import { cookieOptions, UserRequest } from "../../utils/constants";
+import { transporter } from "../../utils/emailService";
 
 export const handleUserSignup = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, phone, password } = req.body;
@@ -104,6 +105,13 @@ export const handleGetUserProfile = asyncHandler(async (req: Request & UserReque
     if (!user) {
         throw new ApiError(404, "User not found");
     }
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //     if (error) {
+    //         console.error(error);
+    //     } else {
+    //         console.log('Email sent: ' + info.response);
+    //     }
+    // })
     res.status(200).json(new ApiResponse(200, user, "User fetched successfully"));
 })
 
