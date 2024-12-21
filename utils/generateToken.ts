@@ -1,8 +1,10 @@
+
+import mongoose from "mongoose";
 import { User } from "../user/model/user.model";
 import { ApiError } from "./apiError";
 
 // generate access token & refresh token for user
-const generateAccessAndRefreshTokens = async (userId: string) => {
+const generateAccessAndRefreshTokens = async (userId: mongoose.Types.ObjectId) => {
     try {
         const user = await User.findById(userId);
         if (user === null) {
