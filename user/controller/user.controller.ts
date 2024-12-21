@@ -3,8 +3,10 @@ import { User } from "../model/user.model";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
-import { cookieOptions, UserRequest } from "../../utils/constants";
+import { refreshTokenOptions, accessTokenOptions, UserRequest } from "../../utils/constants";
 import { transporter } from "../../utils/emailService";
+import generateAccessAndRefreshTokens from "../../utils/generateToken";
+import { OTP } from "../model/otp.model";
 
 export const handleUserSignup = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, phone, password } = req.body;
@@ -27,10 +29,34 @@ export const handleUserSignup = asyncHandler(async (req: Request, res: Response)
         phone,
         password
     });
+    const genratedOTP = Math.floor(1000 + Math.random() * 9000);
+    await OTP.create({
+        email,
+        otp: genratedOTP,
+        expiresAt: new Date(Date.now() + 60000)
+    })
+    const mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'OTP Verification',
+        text: `Your OTP is ${genratedOTP}`
+    };
+    // Send OTP to user's email
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    })
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
     const createdUser = await User.findById(user._id).select("-password");
     // Return success response
-    return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered Successfully")
+    return res.status(201)
+    .cookie("refreshToken", refreshToken, refreshTokenOptions)
+    .cookie("accessToken", accessToken, accessTokenOptions)
+    .json(
+        new ApiResponse(200, createdUser, "User created successfully. OTP sent to your email")
     )
 });
 
@@ -64,8 +90,8 @@ export const handleUserLogin = asyncHandler(async (req: Request, res: Response) 
 
     // Return success response
     res.status(200)
-    .cookie("refreshToken", refreshToken, cookieOptions)
-    .cookie("accessToken", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, refreshTokenOptions)
+    .cookie("accessToken", accessToken, accessTokenOptions)
     res.json(
         new ApiResponse(200, { accessToken, refreshToken }, "Login successful")
     )
@@ -88,8 +114,8 @@ export const handleUserLogout = asyncHandler(async (req: UserRequest, res: Respo
     )
     return res
     .status(200)
-    .clearCookie("accessToken", cookieOptions)
-    .clearCookie("refreshToken", cookieOptions)
+    .clearCookie("accessToken", accessTokenOptions)
+    .clearCookie("refreshToken", refreshTokenOptions)
     .json(new ApiResponse(200, {}, "User logged Out"))
 
 })
