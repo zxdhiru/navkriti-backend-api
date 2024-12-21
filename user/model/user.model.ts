@@ -6,6 +6,7 @@ const status = ['active', 'inactive', 'blocked'];
 const role = ['user', 'admin'];
 
 interface UserDocument extends Document {
+    name: string;
     email: string;
     refreshToken?: string;
     comparePassword(candidatePassword: string): Promise<boolean>
