@@ -92,6 +92,45 @@ export const handleUserSignup = asyncHandler(async (req: Request, res: Response)
     }
 });
 
+export const handleVerifyUser = asyncHandler(
+    async (req: Request & UserRequest, res: Response) => {
+        const user = req.user; // Retrieve authenticated user
+        const { otp } = req.body; // Extract OTP from the request body
+
+        // Validate input
+        if (!otp) {
+            throw new ApiError(400, "OTP is required");
+        }
+
+        // Fetch the saved OTP for the user
+        const savedOTP = await OTP.findOne({ userId: user._id });
+        if (!savedOTP) {
+            throw new ApiError(404, "OTP not found. Please request a new one.");
+        }
+
+        // Check if OTP matches and is still valid
+        const isOTPValid =
+            (await savedOTP.compareOtp(otp)) && savedOTP.expiresAt > new Date();
+
+        if (!isOTPValid) {
+            throw new ApiError(400, "Invalid OTP or OTP has expired");
+        }
+
+        // Update user status to active
+        await User.findByIdAndUpdate(user._id, { status: "active" });
+
+        // Delete the OTP after successful verification
+        await OTP.findByIdAndDelete(savedOTP._id);
+
+        // Return success response
+        res.status(200).json(
+            new ApiResponse(200, {}, "OTP verified successfully. Your account is now active.")
+        );
+    }
+);
+
+
+
 export const handleUserLogin = asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
