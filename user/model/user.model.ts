@@ -23,7 +23,7 @@ const UserSchema = new Schema({
         required: true,
     },
     phone : {
-        type: String,
+        type: Number,
         required: true,
     },
     password: {
@@ -33,7 +33,6 @@ const UserSchema = new Schema({
     role: {
         type: String,
         enum: role,
-        required: true,
         default: 'user',
     },
     status: {
