@@ -1,11 +1,12 @@
 import { Router } from "express";
-import {handleGetAllUsers, handleGetSingleUser, handleGetUserProfile, handleUserLogin, handleUserLogout, handleUserSignup} from "../controller/user.controller";
+import {handleGetAllUsers, handleGetSingleUser, handleGetUserProfile, handleUserLogin, handleUserLogout, handleUserSignup, handleVerifyUser} from "../controller/user.controller";
 import { setRequestUser } from "../../middlewares/setRequest";
 
 const UserRouter = Router();
 
 // Route for user registration
 UserRouter.post("/register",handleUserSignup);
+UserRouter.post("/verify",setRequestUser,handleVerifyUser);
 UserRouter.post("/login",handleUserLogin);
 UserRouter.post("/logout",setRequestUser, handleUserLogout);
 
