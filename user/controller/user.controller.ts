@@ -4,13 +4,25 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
 import { refreshTokenOptions, accessTokenOptions, UserRequest } from "../../utils/constants";
-import { transporter } from "../../utils/emailService";
+import nodemailer from "nodemailer";
 import generateAccessAndRefreshTokens from "../../utils/generateToken";
 import { OTP } from "../model/otp.model";
+import { otpEmailTemplate } from "../../utils/otpTemplate";
+
+const transporter = nodemailer.createTransport({
+    host: 'smtp.hostinger.com', // Hostinger's SMTP host
+    port: 465, // Use 587 for TLS
+    secure: true, // True for 465, false for other ports
+    auth: {
+        user: `${process.env.EMAIL_ID}`, // Your Hostinger email address
+        pass: `${process.env.EMAIL_PASSWORD}`, // Your Hostinger email password
+    },
+});
 
 export const handleUserSignup = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, phone, password } = req.body;
-
+    console.log(req.body);
+    
     // Validate input fields
     if (!name || !email || !phone || !password) {
         throw new ApiError(400, "All fields are required");
@@ -22,42 +34,62 @@ export const handleUserSignup = asyncHandler(async (req: Request, res: Response)
         throw new ApiError(400, "User already exists");
     }
 
-    // Create a new user (exclude password in response)
-    const user = await User.create({
-        name,
-        email,
-        phone,
-        password
-    });
-    const genratedOTP = Math.floor(1000 + Math.random() * 9000);
-    await OTP.create({
-        email,
-        otp: genratedOTP,
-        expiresAt: new Date(Date.now() + 60000)
-    })
-    const mailOptions = {
-        from: process.env.EMAIL,
-        to: email,
-        subject: 'OTP Verification',
-        text: `Your OTP is ${genratedOTP}`
-    };
-    // Send OTP to user's email
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    })
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
-    const createdUser = await User.findById(user._id).select("-password");
-    // Return success response
-    return res.status(201)
-    .cookie("refreshToken", refreshToken, refreshTokenOptions)
-    .cookie("accessToken", accessToken, accessTokenOptions)
-    .json(
-        new ApiResponse(200, createdUser, "User created successfully. OTP sent to your email")
-    )
+    try {
+        // Create a new user
+        const user = await User.create({
+            name,
+            email,
+            phone,
+            password,
+        });
+
+        // Generate OTP
+        const generatedOTP = Math.floor(1000 + Math.random() * 9000);
+        console.log("Generated OTP:", generatedOTP);
+        
+        // Store OTP in database
+        await OTP.create({
+            userId:user._id,
+            otp: generatedOTP,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+        });
+
+        // Send OTP via email
+        const mailOptions = {
+            from: '"ZXDHIRU" <zxdhiru.dev@alljobguider.in>',
+            to: email,
+            subject: "OTP Verification",
+            html: otpEmailTemplate(generatedOTP),
+        };
+        console.log("Mail Options:", mailOptions);
+        
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Error sending email:", error);
+                throw new ApiError(500, "Failed to send OTP email");
+            } else {
+                console.log("Email sent:", info.response);
+            }
+        });
+
+        // Generate access and refresh tokens
+        const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+        const createdUser = await User.findById(user._id).select("-password");
+
+        // Return success response with cookies
+        return res
+            .status(201)
+            .cookie("refreshToken", refreshToken, refreshTokenOptions)
+            .cookie("accessToken", accessToken, accessTokenOptions)
+            .json(
+                new ApiResponse(200, createdUser, "User created successfully. OTP sent to your email.")
+            );
+    } catch (error: any) {
+        console.error(error);
+        throw new ApiError(500, "Internal Server Error");
+    }
 });
 
 export const handleUserLogin = asyncHandler(async (req: Request, res: Response) => {
