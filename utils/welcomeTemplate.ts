@@ -68,7 +68,7 @@ export const welcomeTemplate = (name: string, action_url: string) => `
 
         <!-- Body -->
         <div class="email-body">
-            <p>Hi <strong>{${name}}</strong>,</p>
+            <p>Hi <strong>${name}</strong>,</p>
             <p>We’re thrilled to have you join our community! At <strong>ZXDHIRU</strong>, we’re committed to providing you with the best experience possible.</p>
             <p>Here’s what you can do next:</p>
             <ul>
@@ -78,7 +78,7 @@ export const welcomeTemplate = (name: string, action_url: string) => `
             </ul>
             <p>Click the button below to get started:</p>
             <div class="email-button">
-                <a href="{${action_url}}" target="_blank">Get Started</a>
+                <a href="${action_url}" target="_blank">Get Started</a>
             </div>
             <p>If you have any questions, feel free to reach out to us at <a href="mailto:support@example.com">support@example.com</a>.</p>
         </div>
