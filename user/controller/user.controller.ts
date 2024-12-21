@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { User } from "../model/user.model";
+import { User, UserDocument } from "../model/user.model";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
@@ -8,6 +8,7 @@ import nodemailer from "nodemailer";
 import generateAccessAndRefreshTokens from "../../utils/generateToken";
 import { OTP } from "../model/otp.model";
 import { otpEmailTemplate } from "../../utils/otpTemplate";
+import { welcomeTemplate } from "../../utils/welcomeTemplate";
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.hostinger.com', // Hostinger's SMTP host
@@ -94,7 +95,13 @@ export const handleUserSignup = asyncHandler(async (req: Request, res: Response)
 
 export const handleVerifyUser = asyncHandler(
     async (req: Request & UserRequest, res: Response) => {
-        const user = req.user; // Retrieve authenticated user
+        const dbDbser  = await User.findById(req.user._id); // Retrieve authenticated user
+
+        // Validate user existence
+        if (!dbDbser) {
+            throw new ApiError(404, "User not found.");
+        }
+
         const { otp } = req.body; // Extract OTP from the request body
 
         // Validate input
@@ -103,31 +110,55 @@ export const handleVerifyUser = asyncHandler(
         }
 
         // Fetch the saved OTP for the user
-        const savedOTP = await OTP.findOne({ userId: user._id });
+        const savedOTP = await OTP.findOne({ userId: dbDbser._id });
         if (!savedOTP) {
             throw new ApiError(404, "OTP not found. Please request a new one.");
         }
 
-        // Check if OTP matches and is still valid
-        const isOTPValid =
-            (await savedOTP.compareOtp(otp)) && savedOTP.expiresAt > new Date();
+        // Check if OTP has expired
+        if (savedOTP.expiresAt <= new Date()) {
+            throw new ApiError(400, "OTP has expired. Please request a new one.");
+        }
 
+        // Compare the provided OTP with the stored hashed OTP
+        const isOTPValid = await savedOTP.compareOtp(otp);
         if (!isOTPValid) {
-            throw new ApiError(400, "Invalid OTP or OTP has expired");
+            throw new ApiError(400, "Invalid OTP.");
         }
 
         // Update user status to active
-        await User.findByIdAndUpdate(user._id, { status: "active" });
+        await User.findByIdAndUpdate(dbDbser._id, { status: "active" });
 
         // Delete the OTP after successful verification
         await OTP.findByIdAndDelete(savedOTP._id);
 
+        // send welcome email
+        const mailOptions = {
+            from: '"ZXDHIRU" <zxdhiru.dev@alljobguider.in>',
+            to: dbDbser.email,
+            subject: "Welcome to ZXDHIRU",
+            html: welcomeTemplate(dbDbser?.name, "https://zxdhiru.com")
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error(error);
+            } else {
+                console.log("Welcome email sent:", info.response);
+            }
+        });
+
         // Return success response
         res.status(200).json(
-            new ApiResponse(200, {}, "OTP verified successfully. Your account is now active.")
+            new ApiResponse(
+                200,
+                {},
+                "OTP verified successfully. Your account is now active."
+            )
         );
     }
 );
+
 
 
 
