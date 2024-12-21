@@ -12,8 +12,8 @@ UserRouter.post("/logout",setRequestUser, handleUserLogout);
 
 // Route for fetching user details
 UserRouter.get("/me",setRequestUser, handleGetUserProfile); 
-UserRouter.get("/all", handleGetAllUsers) //protected route
-UserRouter.get("/:id", setRequestUser, checkForAdmin, handleGetSingleUser); //protected route
+UserRouter.get("/all", setRequestUser, checkForAdmin, handleGetAllUsers) //protected route
+UserRouter.get("/:id",  handleGetSingleUser); //protected route
 
 
 export default UserRouter;
