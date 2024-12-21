@@ -1,6 +1,11 @@
 import {Schema, model} from 'mongoose'
 import bcrypt from "bcryptjs";
 
+interface OtpDocument extends Document {
+    compareOtp(otp: string): Promise<boolean>,
+    expiresAt: Date,
+}
+
 const otpSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
@@ -29,4 +34,4 @@ otpSchema.methods.compareOtp = async function(otp : string) {
     return bcrypt.compareSync(otp, this.otp);
 }
 
-export const OTP = model("OTP", otpSchema)
+export const OTP = model<OtpDocument>("OTP", otpSchema)
