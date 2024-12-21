@@ -2,7 +2,7 @@ import {Schema, model} from 'mongoose'
 import bcrypt from "bcryptjs";
 
 interface OtpDocument extends Document {
-    compareOtp(otp: string): Promise<boolean>,
+    compareOtp(otp: number): Promise<boolean>,
     expiresAt: Date,
 }
 
@@ -22,13 +22,26 @@ const otpSchema = new Schema({
     }
 }, {timestamps: true})
 
-otpSchema.pre('save', function(next) {
-    if (!this.isModified('otp')) {
-        return next();
+
+otpSchema.pre('save', async function (next) {
+    try {
+        // Check if OTP is modified
+        if (!this.isModified('otp')) {
+            return next();
+        }
+
+        // Ensure OTP is a string before hashing
+        if (typeof this.otp !== 'string') {
+            throw new Error('OTP must be a string');
+        }
+
+        // Hash the OTP
+        this.otp = await bcrypt.hash(this.otp, 12);
+        next();
+    } catch (error : any) {
+        next(error); // Pass error to next middleware
     }
-    this.otp = bcrypt.hashSync(this.otp, 12);
-    next();
-})
+});
 
 otpSchema.methods.compareOtp = async function(otp : string) {
     return bcrypt.compareSync(otp, this.otp);
