@@ -39,7 +39,7 @@ export const handleUserSignup = asyncHandler(
             $or: [{ email }, { phone }],
         });
         if (existingUser) {
-            throw new ApiError(400, "User already exists");
+            return res.status(400).json(new ApiResponse(400, {}, "User already exists"));
         }
 
         try {
@@ -69,7 +69,6 @@ export const handleUserSignup = asyncHandler(
                 subject: "OTP Verification",
                 html: otpEmailTemplate(generatedOTP),
             };
-            console.log("Mail Options:", mailOptions);
 
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
@@ -84,10 +83,6 @@ export const handleUserSignup = asyncHandler(
             const { accessToken, refreshToken } =
                 await generateAccessAndRefreshTokens(user._id);
 
-            const createdUser = await User.findById(user._id).select(
-                "-password"
-            );
-
             // Return success response with cookies
             return res
                 .status(201)
@@ -96,7 +91,7 @@ export const handleUserSignup = asyncHandler(
                 .json(
                     new ApiResponse(
                         200,
-                        createdUser,
+                        {},
                         "User created successfully. OTP sent to your email."
                     )
                 );
@@ -109,7 +104,7 @@ export const handleUserSignup = asyncHandler(
 
 export const handleVerifyUser = asyncHandler(
     async (req: Request & UserRequest, res: Response) => {
-        const dbDbser = await User.findById(req.user._id); // Retrieve authenticated user
+        const dbDbser = await User.findById(req.user._id).select("-password -refreshToken -role -status"); // Retrieve authenticated user
 
         // Validate user existence
         if (!dbDbser) {
@@ -169,7 +164,7 @@ export const handleVerifyUser = asyncHandler(
         res.status(200).json(
             new ApiResponse(
                 200,
-                {},
+                dbDbser,
                 "OTP verified successfully. Your account is now active."
             )
         );
