@@ -50,7 +50,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, _, next) => {
-    console.log(`${req.method} ${req.path}`);
+    console.log(`PID: ${process.pid} METHOD: ${req.method} PATH: http://localhost:${port}/${req.path} `);
     next();
 });
 app.use(cors(corsOptions));
