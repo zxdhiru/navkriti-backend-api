@@ -29,9 +29,39 @@ export const handleAddProduct = asyncHandler(async (req: Request, res: Response,
 
 
 export const handleGetProducts = asyncHandler(async (req: Request, res: Response) => {
-    const products = await Product.find();
-    return res.status(200).json(new ApiResponse(200, products, "Products retrieved successfully"));
-}) 
+    const { search = "", limit = 10, page = 1 } = req.query;
+  
+    // Build query conditions
+    const query: any = {};
+    if (search) {
+      query.name = { $regex: new RegExp(search as string, "i") }; // Case-insensitive regex match
+    }
+  
+    try {
+      const skip = (Number(page) - 1) * Number(limit);
+  
+      // Fetch products with pagination
+      const products = await Product.find(query).skip(skip).limit(Number(limit));
+  
+      // Get total product count for pagination
+      const totalProducts = await Product.countDocuments(query);
+  
+      return res.status(200).json(
+        new ApiResponse(200, {
+          products,
+          totalProducts,
+          currentPage: Number(page),
+          totalPages: Math.ceil(totalProducts / Number(limit)),
+        }, "Products retrieved successfully")
+      );
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return res
+        .status(500)
+        .json(new ApiResponse(500, null, "An error occurred while retrieving products"));
+    }
+  });
+  
 
 export const handleGetSingleProduct = asyncHandler(async (req: Request, res: Response) => {
     const { slug } = req.params;
