@@ -1,6 +1,6 @@
 import cluster from "cluster";
 import os from "os";
-import express, { ErrorRequestHandler, NextFunction, Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import connectToDatabase from "./database/db";
 import cors from "cors";
