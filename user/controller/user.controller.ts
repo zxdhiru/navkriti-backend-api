@@ -7,6 +7,7 @@ import {
     refreshTokenOptions,
     accessTokenOptions,
     UserRequest,
+    clearCookieOptions,
 } from "../../utils/constants";
 import nodemailer from "nodemailer";
 import generateAccessAndRefreshTokens from "../../utils/generateToken";
@@ -234,8 +235,8 @@ export const handleUserLogout = asyncHandler(
         );
         return res
             .status(200)
-            .clearCookie("accessToken", accessTokenOptions)
-            .clearCookie("refreshToken", refreshTokenOptions)
+            .clearCookie('accessToken', clearCookieOptions)
+            .clearCookie("refreshToken", clearCookieOptions)
             .json(new ApiResponse(200, {}, "User logged Out"));
     }
 );
