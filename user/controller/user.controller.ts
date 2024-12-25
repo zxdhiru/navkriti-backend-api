@@ -200,6 +200,8 @@ export const handleUserLogin = asyncHandler(
         user.refreshToken = refreshToken;
         await user.save();
 
+        const sendUserData = await User.findById(user._id).select("-password -refreshToken")
+
         // Return success response
         res.status(200)
             .cookie("refreshToken", refreshToken, refreshTokenOptions)
@@ -207,7 +209,7 @@ export const handleUserLogin = asyncHandler(
         res.json(
             new ApiResponse(
                 200,
-                { accessToken, refreshToken },
+                sendUserData,
                 "Login successful"
             )
         );
@@ -251,7 +253,7 @@ export const handleGetUserProfile = asyncHandler(
     async (req: Request & UserRequest, res: Response) => {
         const userId = req.user._id;
         const user = await User.findById(userId).select(
-            "-password -refreshToken -role -status"
+            "-password -refreshToken"
         );
         if (!user) {
             throw new ApiError(404, "User not found");
