@@ -154,18 +154,18 @@ export const handleVerifyUser = asyncHandler(
             if (error) {
                 console.error(error);
             } else {
-                return
+                return res.status(200).json(
+                    new ApiResponse(
+                        200,
+                        dbDbser,
+                        "OTP verified successfully. Your account is now active."
+                    )
+                );
             }
         });
 
         // Return success response
-        res.status(200).json(
-            new ApiResponse(
-                200,
-                dbDbser,
-                "OTP verified successfully. Your account is now active."
-            )
-        );
+        
     }
 );
 
