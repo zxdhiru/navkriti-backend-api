@@ -5,18 +5,18 @@ import { ApiResponse } from "../../utils/apiResponse";
 import { asyncHandler } from "../../utils/asyncHandler";
 
 export const handleAddProduct = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const { name, slug, description, price, discountedPrice, category, tags, stock, attributes } = req.body;
+    const { name, slug, description, price, discountedPrice, category, tags, stock, attributes, isActive, images } = req.body;
     console.log(req.body);
 
     // Validate the required fields
-    if (!name || !slug || !description || !price || !discountedPrice || !category || !tags || !stock || !attributes) {
+    if (!name || !slug || !description || !price || !discountedPrice || !category || !tags || !stock || !attributes || !isActive || !images) {
         console.log('All fields are required');
         return next(new ApiError(400, 'All fields are required'));
     }
 
     // Create product
     try {
-        const product = await Product.create({ name, slug, description, price, discountedPrice, category, tags, stock, attributes });
+        const product = await Product.create({ name, slug, description, price, discountedPrice, category, tags, stock, attributes, images, isActive });
 
         console.log(product);
 
