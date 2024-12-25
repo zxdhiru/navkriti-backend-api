@@ -28,7 +28,6 @@ const transporter = nodemailer.createTransport({
 export const handleUserSignup = asyncHandler(
     async (req: Request, res: Response) => {
         const { name, email, phone, password } = req.body;
-        console.log(req.body);
 
         // Validate input fields
         if (!name || !email || !phone || !password) {
@@ -54,7 +53,6 @@ export const handleUserSignup = asyncHandler(
 
             // Generate OTP
             const generatedOTP = Math.floor(1000 + Math.random() * 9000);
-            console.log("Generated OTP:", generatedOTP);
 
             // Store OTP in database
             await OTP.create({
@@ -73,10 +71,9 @@ export const handleUserSignup = asyncHandler(
 
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
-                    console.error("Error sending email:", error);
                     throw new ApiError(500, "Failed to send OTP email");
                 } else {
-                    console.log("Email sent:", info.response);
+                    res.status(200).json(new ApiResponse(200, {}, `OTP successfully sent to ${email}` ))
                 }
             });
 
@@ -157,7 +154,7 @@ export const handleVerifyUser = asyncHandler(
             if (error) {
                 console.error(error);
             } else {
-                console.log("Welcome email sent:", info.response);
+                return
             }
         });
 
@@ -219,8 +216,6 @@ export const handleUserLogin = asyncHandler(
 
 export const handleUserLogout = asyncHandler(
     async (req: UserRequest, res: Response) => {
-        // Clear refresh token from the database
-        console.log(req.user);
 
         await User.findByIdAndUpdate(
             req.user._id,
@@ -259,13 +254,6 @@ export const handleGetUserProfile = asyncHandler(
         if (!user) {
             throw new ApiError(404, "User not found");
         }
-        // transporter.sendMail(mailOptions, (error, info) => {
-        //     if (error) {
-        //         console.error(error);
-        //     } else {
-        //         console.log('Email sent: ' + info.response);
-        //     }
-        // })
         res.status(200).json(
             new ApiResponse(200, user, "User fetched successfully")
         );
