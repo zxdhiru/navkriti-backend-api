@@ -6,20 +6,13 @@ import { asyncHandler } from "../../utils/asyncHandler";
 
 export const handleAddProduct = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { name, slug, description, price, discountedPrice, category, tags, stock, attributes, isActive, images } = req.body;
-    console.log(req.body);
-
     // Validate the required fields
     if (!name || !slug || !description || !price || !discountedPrice || !category || !tags || !stock || !attributes || !isActive || !images) {
-        console.log('All fields are required');
-        return next(new ApiError(400, 'All fields are required'));
+      return new ApiError(403, "All fields are required!")
     }
-
     // Create product
     try {
         const product = await Product.create({ name, slug, description, price, discountedPrice, category, tags, stock, attributes, images, isActive });
-
-        console.log(product);
-
         // Respond with a success message
         return res.status(201).json(new ApiResponse(201, product, "Product added successfully"));
     } catch (error: any) {
