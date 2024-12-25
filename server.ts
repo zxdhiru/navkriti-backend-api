@@ -50,7 +50,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, _, next) => {
-    console.log(`PID: ${process.pid} METHOD: ${req.method} PATH: http://localhost:${port}/${req.path} `);
+    console.log(`PID: ${process.pid} METHOD: ${req.method} PATH: http://localhost:${port}${req.path} `);
     next();
 });
 app.use(cors(corsOptions));
@@ -63,7 +63,7 @@ app.use("/api/category", categoryRoute);
 app.use("/api/review", reviewRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/coupon", couponRoute);
-app.use("api/order", orderRoute)
+app.use("/api/order", orderRoute)
 app.use("/api/wishlist", wishlistRoute);
 app.use("/api/address", addressRouter);
 // error handling
