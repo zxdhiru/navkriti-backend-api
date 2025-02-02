@@ -14,7 +14,7 @@ UserRouter.post("/refresh-token",setRequestUser, handleRefreshToken);
 // Route for fetching user details
 UserRouter.get("/me",setRequestUser, handleGetUserProfile); 
 UserRouter.get("/all", setRequestUser, checkForAdmin, handleGetAllUsers) //protected route
-UserRouter.get("/:id",  handleGetSingleUser); //protected route
+UserRouter.get("/:id", setRequestUser, checkForAdmin,  handleGetSingleUser); //protected route
 
 
 export default UserRouter;

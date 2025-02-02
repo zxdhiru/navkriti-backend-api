@@ -27,10 +27,10 @@ const transporter = nodemailer.createTransport({
 
 export const handleUserSignup = asyncHandler(
     async (req: Request, res: Response) => {
-        const { name, email, phone, password } = req.body;
+        const {name, email, phone, password, department, session, studentId, profilePic} = req.body;
 
         // Validate input fields
-        if (!name || !email || !phone || !password) {
+        if (!name || !email || !phone || !password || !department || !session || !studentId) {
             throw new ApiError(400, "All fields are required");
         }
 
@@ -49,6 +49,10 @@ export const handleUserSignup = asyncHandler(
                 email,
                 phone,
                 password,
+                department,
+                session,
+                studentId,
+                profilePic,
             });
 
             // Generate OTP
@@ -216,6 +220,9 @@ export const handleUserLogin = asyncHandler(
 
 export const handleUserLogout = asyncHandler(
     async (req: UserRequest, res: Response) => {
+        if (!req.user._id) {
+            return new ApiError (500, "Token not found")
+        }
 
         await User.findByIdAndUpdate(
             req.user._id,

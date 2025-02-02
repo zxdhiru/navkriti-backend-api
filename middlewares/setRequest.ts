@@ -13,7 +13,7 @@ export const setRequestUser = async (req: Request & any, _: Response, next: Next
     const { accessToken } = req.cookies;
     
     if (!accessToken) {
-        return next(new ApiError(401, "Unauthorized User"));
+        return next(new ApiError(500, "Unauthorized User"));
     }
 
     try {

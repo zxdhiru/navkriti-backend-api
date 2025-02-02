@@ -8,14 +8,7 @@ import cookieParser from "cookie-parser";
 
 // Router imports
 import UserRouter from "./user/routes/user.route";
-import productRouter from "./products/routes/product.route";
-import categoryRoute from "./products/routes/categoryRoute";
-import reviewRoute from "./products/routes/review.route";
-import cartRoute from "./user/routes/cart.route";
-import couponRoute from "./products/routes/coupon.route";
-import orderRoute from "./products/routes/order.route";
-import wishlistRoute from "./user/routes/wishlist.route";
-import addressRouter from "./user/routes/address.route";
+import EventRouter from "./event/routes/event.route";
 
 dotenv.config();
 
@@ -65,14 +58,7 @@ if (cluster.isPrimary) {
 
   // Routes
   app.use("/api/auth", UserRouter);
-  app.use("/api/product", productRouter);
-  app.use("/api/category", categoryRoute);
-  app.use("/api/review", reviewRoute);
-  app.use("/api/cart", cartRoute);
-  app.use("/api/coupon", couponRoute);
-  app.use("/api/order", orderRoute);
-  app.use("/api/wishlist", wishlistRoute);
-  app.use("/api/address", addressRouter);
+  app.use("/api/event", EventRouter);
 
   // Error Handling Middleware
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
