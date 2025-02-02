@@ -259,9 +259,9 @@ export const handleGetUserProfile = asyncHandler(
             "-password -refreshToken"
         ).populate("eventsParticipated");
         if (!user) {
-            throw new ApiError(404, "User not found");
+            return res.status(404).json(new ApiResponse(404, {}, "User not found"));
         }
-        res.status(200).json(
+        return res.status(200).json(
             new ApiResponse(200, user, "User fetched successfully")
         );
     }
