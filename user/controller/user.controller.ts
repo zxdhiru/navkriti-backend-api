@@ -274,7 +274,7 @@ export const handleGetSingleUser = asyncHandler(
             "-password -refreshToken"
         ).populate("eventsParticipated");
         if (!user) {
-            throw new ApiError(404, "User not found");
+            return res.status(404).json(new ApiResponse(404, {}, "User not found"));
         }
         res.status(200).json(
             new ApiResponse(200, user, "User profile fetched successfully")
@@ -292,7 +292,7 @@ export const handleRefreshToken = asyncHandler(
         try {
             const user = await User.findById(req.user._id);
             if (!user) {
-                throw new ApiError(404, "User not found");
+                return res.status(404).json(new ApiResponse(404, {}, "User not found"));
             }
             const newAccessToken = user.generateAccessToken();
             res.cookie("accessToken", newAccessToken, accessTokenOptions);
@@ -304,7 +304,7 @@ export const handleRefreshToken = asyncHandler(
                 )
             );
         } catch (error: any) {
-            throw new ApiError(500, "Internal Server Error");
+            return res.status(500).json(new ApiResponse(500, {}, "Internal Server Error"));
         }
     }
 );
