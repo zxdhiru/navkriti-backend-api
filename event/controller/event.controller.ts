@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { UserRequest } from "../../utils/constants";
+import Contact from "../model/contact.model";
 import { Event } from "../model/event.model";
 import { Request, Response } from "express";
 
@@ -24,7 +25,7 @@ export const handleGetAllEvents = asyncHandler(
 export const handleGetSingleEvent = asyncHandler(
     async (req: Request, res: Response) => {
         const { slug } = req.params;
-        const event = await Event.findOne({ slug });
+        const event = await Event.findOne({ slug }).populate("participants");
         if (!event || event === null) {
             return res
                 .status(404)
@@ -142,5 +143,49 @@ export const handleUpdateEvent = asyncHandler(
         res.status(200).json(
             new ApiResponse(200, event, "Event updated successfully")
         );
+    }
+);
+// handleContact
+export const handleContact = asyncHandler(
+    async (req: Request, res: Response) => {
+        const { name, email, message } = req.body;
+
+        // Validate required fields
+        if (!name || !email || !message) {
+            return res.status(400).json(new ApiResponse(400, null, "All fields are required"));
+        }
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json(new ApiResponse(400, null, "Please provide a valid email"));
+        }
+
+        // Save the contact form submission to the database
+        try {
+            const entry = await Contact.create({ name, email, message });
+
+            // Send a confirmation email to the admin (or an appropriate email)
+            // await sendEmail({
+            //     to: 'admin@example.com', // Admin email
+            //     subject: 'New Contact Form Submission',
+            //     text: `You have a new message from ${name} (${email}):\n\n${message}`,
+            // });
+
+            // Respond with success message
+            res.status(200).json(
+                new ApiResponse(200, null, "Contact form submitted successfully")
+            );
+        } catch (error: any) {
+            console.error("Error in handleContact:", error);
+
+            // More specific error logging for development purposes
+            if (process.env.NODE_ENV === 'development') {
+                console.error(error);
+            }
+
+            // Send a generic error message to the client
+            return res.status(500).json(new ApiError(500, "Internal Server Error"));
+        }
     }
 );

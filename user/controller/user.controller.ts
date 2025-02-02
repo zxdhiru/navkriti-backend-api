@@ -179,19 +179,19 @@ export const handleUserLogin = asyncHandler(
 
         // Validate input fields
         if (!email || !password) {
-            throw new ApiError(400, "Email and password are required");
+            return res.status(400).json(new ApiResponse(400, {}, "Email and password are required"));
         }
 
         // Check if the user exists
         const user = await User.findOne({ email });
         if (!user) {
-            throw new ApiError(404, "User not found with this email");
+            return res.status(404).json(new ApiResponse(404, {}, "User not found with this email"));
         }
 
         // Check if the password is correct
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            throw new ApiError(401, "Invalid credentials");
+            return res.status(401).json(new ApiResponse(401, {}, "Invalid password"));
         }
 
         // Generate access token and refresh token
@@ -202,7 +202,7 @@ export const handleUserLogin = asyncHandler(
         user.refreshToken = refreshToken;
         await user.save();
 
-        const sendUserData = await User.findById(user._id).select("-password -refreshToken")
+        const sendUserData = await User.findById(user._id).select("-password -refreshToken").populate("eventsParticipated")
 
         // Return success response
         res.status(200)
@@ -257,7 +257,7 @@ export const handleGetUserProfile = asyncHandler(
         const userId = req.user._id;
         const user = await User.findById(userId).select(
             "-password -refreshToken"
-        );
+        ).populate("eventsParticipated");
         if (!user) {
             throw new ApiError(404, "User not found");
         }
@@ -272,12 +272,12 @@ export const handleGetSingleUser = asyncHandler(
         const userId = req.params.id;
         const user = await User.findById(userId).select(
             "-password -refreshToken"
-        );
+        ).populate("eventsParticipated");
         if (!user) {
             throw new ApiError(404, "User not found");
         }
         res.status(200).json(
-            new ApiResponse(200, user, "User fetched successfully")
+            new ApiResponse(200, user, "User profile fetched successfully")
         );
     }
 );
