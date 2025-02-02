@@ -75,7 +75,7 @@ if (cluster.isPrimary) {
   app.use(cors(corsOptions));
   app.use((req, _, next) => {
     console.log(
-      `PID: ${process.pid} METHOD: ${req.method} PATH: http://localhost:${port}${req.path}`
+      `PID: ${process.pid} METHOD: ${req.method} PATH: http://localhost:${port}${req.path}`,req.cookies,req.body
     );
     next();
   });
