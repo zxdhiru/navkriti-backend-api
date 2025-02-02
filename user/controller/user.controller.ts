@@ -16,7 +16,7 @@ import { otpEmailTemplate } from "../../utils/otpTemplate";
 import { welcomeTemplate } from "../../utils/welcomeTemplate";
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.hostinger.com", // Hostinger's SMTP host
+    sevice: "gmail", // Hostinger's SMTP host
     port: 465, // Use 587 for TLS
     secure: true, // True for 465, false for other ports
     auth: {
