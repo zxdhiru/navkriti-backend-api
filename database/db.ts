@@ -6,5 +6,6 @@ export default async function connectToDatabase(url: string) {
     console.log("Database connection established", connection.connection.host);
   } catch (error) {
     console.log("Database connection failed", error);
+    process.exit(1);
   }
 }
