@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 interface IApiError extends Error {
     statusCode: number;
     data: any;
