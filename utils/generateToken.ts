@@ -1,10 +1,11 @@
-
 import mongoose from "mongoose";
 import { User } from "../user/model/user.model";
 import { ApiError } from "./apiError";
 
 // generate access token & refresh token for user
-const generateAccessAndRefreshTokens = async (userId: mongoose.Types.ObjectId) => {
+const generateAccessAndRefreshTokens = async (
+    userId: mongoose.Types.ObjectId
+) => {
     try {
         const user = await User.findById(userId);
         if (user === null) {
@@ -20,7 +21,8 @@ const generateAccessAndRefreshTokens = async (userId: mongoose.Types.ObjectId) =
         await user.save({ validateBeforeSave: false });
 
         return { accessToken, refreshToken };
-    } catch (error) {
+    } catch (error: any) {
+        console.error("Error generating tokens:", error);
         throw new ApiError(500, "Error generating tokens");
     }
 };

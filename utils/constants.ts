@@ -1,21 +1,21 @@
 import { CookieOptions } from "express";
 
-export const refreshTokenOptions : any = {
+export const refreshTokenOptions: any = {
     httpOnly: true,
-    sameSite:"none",
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 1000 * 60 * 60 * 24 * 7
+    sameSite: "none",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
 };
-export const accessTokenOptions : any = {
+export const accessTokenOptions: any = {
     httpOnly: true,
-    sameSite:"none",
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 1000 * 60 * 60
+    sameSite: "none",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60,
 };
-export const clearCookieOptions : CookieOptions = {
+export const clearCookieOptions: CookieOptions = {
     httpOnly: true,
-    sameSite:"none",
-    secure: process.env.NODE_ENV === 'production',
+    sameSite: "none",
+    secure: process.env.NODE_ENV === "production",
 };
 
 // Type for user data in the request

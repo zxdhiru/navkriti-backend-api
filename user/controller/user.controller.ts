@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { User, UserDocument } from "../model/user.model";
+import { User } from "../model/user.model";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
@@ -27,10 +27,27 @@ const transporter = nodemailer.createTransport({
 
 export const handleUserSignup = asyncHandler(
     async (req: Request, res: Response) => {
-        const {name, email, phone, password, department, session, studentId, profilePic} = req.body;
+        const {
+            name,
+            email,
+            phone,
+            password,
+            department,
+            session,
+            studentId,
+            profilePic,
+        } = req.body;
 
         // Validate input fields
-        if (!name || !email || !phone || !password || !department || !session || !studentId) {
+        if (
+            !name ||
+            !email ||
+            !phone ||
+            !password ||
+            !department ||
+            !session ||
+            !studentId
+        ) {
             throw new ApiError(400, "All fields are required");
         }
 
@@ -39,7 +56,9 @@ export const handleUserSignup = asyncHandler(
             $or: [{ email }, { phone }],
         });
         if (existingUser) {
-            return res.status(400).json(new ApiResponse(400, {}, "User already exists"));
+            return res
+                .status(400)
+                .json(new ApiResponse(400, {}, "User already exists"));
         }
 
         try {
@@ -77,7 +96,17 @@ export const handleUserSignup = asyncHandler(
                 if (error) {
                     throw new ApiError(500, "Failed to send OTP email");
                 } else {
-                    res.status(200).json(new ApiResponse(200, {}, `OTP successfully sent to ${email}` ))
+                    res.status(200).json(
+                        new ApiResponse(
+                            200,
+                            {},
+                            `OTP successfully sent to ${email}`
+                        )
+                    );
+                    console.log(
+                        `OTP sent to ${email}: ${generatedOTP}`,
+                        info.response
+                    );
                 }
             });
 
@@ -97,7 +126,7 @@ export const handleUserSignup = asyncHandler(
                         "User created successfully. OTP sent to your email."
                     )
                 );
-        } catch (error: any) {
+        } catch (error: Error | unknown) {
             console.error(error);
             throw new ApiError(500, "Internal Server Error");
         }
@@ -106,7 +135,9 @@ export const handleUserSignup = asyncHandler(
 
 export const handleVerifyUser = asyncHandler(
     async (req: Request & UserRequest, res: Response) => {
-        const dbDbser = await User.findById(req.user._id).select("-password -refreshToken -role -status"); // Retrieve authenticated user
+        const dbDbser = await User.findById(req.user._id).select(
+            "-password -refreshToken -role -status"
+        ); // Retrieve authenticated user
 
         // Validate user existence
         if (!dbDbser) {
@@ -158,18 +189,23 @@ export const handleVerifyUser = asyncHandler(
             if (error) {
                 console.error(error);
             } else {
-                return res.status(200).json(
-                    new ApiResponse(
-                        200,
-                        dbDbser,
-                        "OTP verified successfully. Your account is now active."
-                    )
+                return res
+                    .status(200)
+                    .json(
+                        new ApiResponse(
+                            200,
+                            dbDbser,
+                            "OTP verified successfully. Your account is now active."
+                        )
+                    );
+                console.log(
+                    `Welcome email sent to ${dbDbser?.email}: ${info.response}`,
+                    info.response
                 );
             }
         });
 
         // Return success response
-        
     }
 );
 
@@ -179,19 +215,29 @@ export const handleUserLogin = asyncHandler(
 
         // Validate input fields
         if (!email || !password) {
-            return res.status(400).json(new ApiResponse(400, {}, "Email and password are required"));
+            return res
+                .status(400)
+                .json(
+                    new ApiResponse(400, {}, "Email and password are required")
+                );
         }
 
         // Check if the user exists
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json(new ApiResponse(404, {}, "User not found with this email"));
+            return res
+                .status(404)
+                .json(
+                    new ApiResponse(404, {}, "User not found with this email")
+                );
         }
 
         // Check if the password is correct
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(401).json(new ApiResponse(401, {}, "Invalid password"));
+            return res
+                .status(401)
+                .json(new ApiResponse(401, {}, "Invalid password"));
         }
 
         // Generate access token and refresh token
@@ -202,26 +248,22 @@ export const handleUserLogin = asyncHandler(
         user.refreshToken = refreshToken;
         await user.save();
 
-        const sendUserData = await User.findById(user._id).select("-password -refreshToken").populate("eventsParticipated")
+        const sendUserData = await User.findById(user._id)
+            .select("-password -refreshToken")
+            .populate("eventsParticipated");
 
         // Return success response
         res.status(200)
             .cookie("refreshToken", refreshToken, refreshTokenOptions)
             .cookie("accessToken", accessToken, accessTokenOptions);
-        res.json(
-            new ApiResponse(
-                200,
-                sendUserData,
-                "Login successful"
-            )
-        );
+        res.json(new ApiResponse(200, sendUserData, "Login successful"));
     }
 );
 
 export const handleUserLogout = asyncHandler(
     async (req: UserRequest, res: Response) => {
         if (!req.user._id) {
-            return new ApiError (500, "Token not found")
+            return new ApiError(500, "Token not found");
         }
 
         await User.findByIdAndUpdate(
@@ -237,7 +279,7 @@ export const handleUserLogout = asyncHandler(
         );
         return res
             .status(200)
-            .clearCookie('accessToken', clearCookieOptions)
+            .clearCookie("accessToken", clearCookieOptions)
             .clearCookie("refreshToken", clearCookieOptions)
             .json(new ApiResponse(200, {}, "User logged Out"));
     }
@@ -255,26 +297,30 @@ export const handleGetAllUsers = asyncHandler(
 export const handleGetUserProfile = asyncHandler(
     async (req: Request & UserRequest, res: Response) => {
         const userId = req.user._id;
-        const user = await User.findById(userId).select(
-            "-password -refreshToken"
-        ).populate("eventsParticipated");
+        const user = await User.findById(userId)
+            .select("-password -refreshToken")
+            .populate("eventsParticipated");
         if (!user) {
-            return res.status(404).json(new ApiResponse(404, {}, "User not found"));
+            return res
+                .status(404)
+                .json(new ApiResponse(404, {}, "User not found"));
         }
-        return res.status(200).json(
-            new ApiResponse(200, user, "User fetched successfully")
-        );
+        return res
+            .status(200)
+            .json(new ApiResponse(200, user, "User fetched successfully"));
     }
 );
 
 export const handleGetSingleUser = asyncHandler(
     async (req: Request, res: Response) => {
         const userId = req.params.id;
-        const user = await User.findById(userId).select(
-            "-password -refreshToken"
-        ).populate("eventsParticipated");
+        const user = await User.findById(userId)
+            .select("-password -refreshToken")
+            .populate("eventsParticipated");
         if (!user) {
-            return res.status(404).json(new ApiResponse(404, {}, "User not found"));
+            return res
+                .status(404)
+                .json(new ApiResponse(404, {}, "User not found"));
         }
         res.status(200).json(
             new ApiResponse(200, user, "User profile fetched successfully")
@@ -292,7 +338,9 @@ export const handleRefreshToken = asyncHandler(
         try {
             const user = await User.findById(req.user._id);
             if (!user) {
-                return res.status(404).json(new ApiResponse(404, {}, "User not found"));
+                return res
+                    .status(404)
+                    .json(new ApiResponse(404, {}, "User not found"));
             }
             const newAccessToken = user.generateAccessToken();
             res.cookie("accessToken", newAccessToken, accessTokenOptions);
@@ -303,8 +351,11 @@ export const handleRefreshToken = asyncHandler(
                     "Token refreshed successfully"
                 )
             );
-        } catch (error: any) {
-            return res.status(500).json(new ApiResponse(500, {}, "Internal Server Error"));
+        } catch (error: Error | unknown) {
+            console.error("Error refreshing token:", error);
+            return res
+                .status(500)
+                .json(new ApiResponse(500, {}, "Internal Server Error"));
         }
     }
 );

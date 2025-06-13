@@ -1,0 +1,26 @@
+services:
+    mongoserver:
+        image: mongo:latest
+        container_name: mongoserver
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=root
+            - MONGO_INITDB_ROOT_PASSWORD=Dhiru6801
+        volumes:
+            - ~/mongo/data:/data/db
+        networks:
+            - navkriti-network
+
+    navkriti-api:
+        image: zxdhiru/navkriti:v1.0.1
+        container_name: navkriti
+        ports:
+            - "5513:5513"
+        networks:
+            - navkriti-network
+        env-file: .env
+        depends_on:
+            - mongoserver
+
+networks:
+    navkriti-network:
+        driver: bridge

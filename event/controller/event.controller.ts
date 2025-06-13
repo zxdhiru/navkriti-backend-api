@@ -1,4 +1,4 @@
-import { User, UserDocument } from "../../user/model/user.model";
+import { User } from "../../user/model/user.model";
 import { ApiError } from "../../utils/apiError";
 import { ApiResponse } from "../../utils/apiResponse";
 import { asyncHandler } from "../../utils/asyncHandler";
@@ -13,8 +13,8 @@ export const handleGetAllEvents = asyncHandler(
         const events = await Event.find();
         if (!events || events.length === 0) {
             return res
-                .status(404)
-                .json(new ApiResponse(404, null, "No events found"));
+                .status(200)
+                .json(new ApiResponse(200, null, "No events found"));
         }
         res.status(200).json(
             new ApiResponse(200, events, "All events fetched successfully")
@@ -28,8 +28,8 @@ export const handleGetSingleEvent = asyncHandler(
         const event = await Event.findOne({ slug }).populate("participants");
         if (!event || event === null) {
             return res
-                .status(404)
-                .json(new ApiResponse(404, null, "Event not found"));
+                .status(200)
+                .json(new ApiResponse(200, null, "Event not found"));
         }
         res.status(200).json(
             new ApiResponse(200, event, "Event fetched successfully")
@@ -49,7 +49,16 @@ export const handleCreateEvent = asyncHandler(
             coverPic,
             slug,
         } = req.body;
-        if(!name || !description || !date || !entryFee || !prizes || !tagline || !coverPic || !slug) {
+        if (
+            !name ||
+            !description ||
+            !date ||
+            !entryFee ||
+            !prizes ||
+            !tagline ||
+            !coverPic ||
+            !slug
+        ) {
             return res
                 .status(400)
                 .json(new ApiResponse(400, null, "All fields are required"));
@@ -117,15 +126,8 @@ export const handleParticipateEvent = asyncHandler(
 export const handleUpdateEvent = asyncHandler(
     async (req: Request, res: Response) => {
         const { slug } = req.params;
-        const {
-            name,
-            description,
-            date,
-            entryFee,
-            prizes,
-            tagline,
-            coverPic,
-        } = req.body;
+        const { name, description, date, entryFee, prizes, tagline, coverPic } =
+            req.body;
         const event = await Event.findOne({ slug });
         if (!event) {
             return res
@@ -152,18 +154,24 @@ export const handleContact = asyncHandler(
 
         // Validate required fields
         if (!name || !email || !message) {
-            return res.status(400).json(new ApiResponse(400, null, "All fields are required"));
+            return res
+                .status(400)
+                .json(new ApiResponse(400, null, "All fields are required"));
         }
 
         // Basic email format validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json(new ApiResponse(400, null, "Please provide a valid email"));
+            return res
+                .status(400)
+                .json(
+                    new ApiResponse(400, null, "Please provide a valid email")
+                );
         }
 
         // Save the contact form submission to the database
         try {
-            const entry = await Contact.create({ name, email, message });
+            await Contact.create({ name, email, message });
 
             // Send a confirmation email to the admin (or an appropriate email)
             // await sendEmail({
@@ -174,18 +182,24 @@ export const handleContact = asyncHandler(
 
             // Respond with success message
             res.status(200).json(
-                new ApiResponse(200, null, "Contact form submitted successfully")
+                new ApiResponse(
+                    200,
+                    null,
+                    "Contact form submitted successfully"
+                )
             );
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error in handleContact:", error);
 
             // More specific error logging for development purposes
-            if (process.env.NODE_ENV === 'development') {
+            if (process.env.NODE_ENV === "development") {
                 console.error(error);
             }
 
             // Send a generic error message to the client
-            return res.status(500).json(new ApiError(500, "Internal Server Error"));
+            return res
+                .status(500)
+                .json(new ApiError(500, "Internal Server Error"));
         }
     }
 );

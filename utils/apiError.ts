@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 interface IApiError extends Error {
     statusCode: number;
@@ -35,4 +36,4 @@ class ApiError extends Error implements IApiError {
     }
 }
 
-export { ApiError }
+export { ApiError };
