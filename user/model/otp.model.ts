@@ -40,7 +40,6 @@ otpSchema.pre("save", async function (next) {
         // Hash the OTP
         this.otp = await bcrypt.hash(this.otp, 12);
         next();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         next(error); // Pass error to next middleware
     }

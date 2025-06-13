@@ -101,7 +101,7 @@ if (cluster.isPrimary) {
     });
 
     // Error Handling Middleware
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     app.use((err: any, req: Request, res: Response) => {
         console.error(`❌ Error: ${err.message}`);
         res.status(err.status || 500).json({
@@ -117,7 +117,7 @@ if (cluster.isPrimary) {
                 console.log(`✅ Worker ${process.pid} running on port ${port}`);
             });
         })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         .catch((error: any) => {
             console.error(`❌ Database connection failed: ${error.message}`);
             process.exit(1); // Ensure worker exits on DB failure
